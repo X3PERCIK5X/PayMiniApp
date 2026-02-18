@@ -59,12 +59,11 @@ loadEnvFile(ENV_PATH);
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const WEBAPP_URL = process.env.WEBAPP_URL;
-const PAYMENT_URL = process.env.YOOKASSA_PAYMENT_URL || process.env.TINKOFF_PAYMENT_URL;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
 
-if (!BOT_TOKEN || !WEBAPP_URL || !PAYMENT_URL || !ADMIN_CHAT_ID) {
+if (!BOT_TOKEN || !WEBAPP_URL || !ADMIN_CHAT_ID) {
   console.error(
-    "Не найдены BOT_TOKEN, WEBAPP_URL, YOOKASSA_PAYMENT_URL/TINKOFF_PAYMENT_URL или ADMIN_CHAT_ID. " +
+    "Не найдены BOT_TOKEN, WEBAPP_URL или ADMIN_CHAT_ID. " +
       "Заполните config.env рядом с файлом оплата бот.js"
   );
   process.exit(1);

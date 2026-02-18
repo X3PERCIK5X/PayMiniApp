@@ -182,12 +182,12 @@
       </div>
 
       <button id="payBtn" class="btn btn-primary" type="button">Оплатить через ЮKassa</button>
-      <div id="payStatus" class="status warn">После возврата из оплаты отправим в группу: телефон, ссылка на бота и статус «Подписка оплачена».</div>
+      <div id="payStatus" class="status warn">После оплаты ЮKassa отправит автоподтверждение в группу: телефон, ссылка на бота и статус «Подписка оплачена».</div>
     </section>
   </main>
 
   <script>
-    const YOOKASSA_PAYMENT_URL = "https://www.tinkoff.ru/";
+    const API_BASE = "https://lambrizsel.duckdns.org/payminiapi";
 
     const authScreen = document.getElementById("authScreen");
     const paymentScreen = document.getElementById("paymentScreen");
@@ -200,8 +200,6 @@
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 
     let contactApproved = false;
-    let paymentOpened = false;
-
     function setAuthStatus(text, tone) {
       authStatus.textContent = text;
       authStatus.className = `status ${tone || ""}`.trim();
@@ -254,7 +252,7 @@
 
     requestPhoneBtn.addEventListener("click", requestContact);
 
-    payBtn.addEventListener("click", () => {
+    payBtn.addEventListener("click", async () => {
       const botLink = normalizeLink(botLinkInput.value);
 
       if (!contactApproved) {
@@ -267,37 +265,40 @@
         return;
       }
 
-      paymentOpened = true;
-      setPayStatus("Переход на оплату... После возврата отправим статус «Подписка оплачена».", "ok");
-      window.open(YOOKASSA_PAYMENT_URL, "_blank", "noopener,noreferrer");
-    });
-
-    function sendPaidPayload() {
-      if (!paymentOpened) return;
-
-      const botLink = normalizeLink(botLinkInput.value);
-      if (!botLink) return;
-
-      if (tg && typeof tg.sendData === "function") {
-        tg.sendData(JSON.stringify({
-          action: "subscription_paid",
-          botLink,
-          status: "Подписка оплачена",
-          paidAt: new Date().toISOString(),
-          source: "mini_app"
-        }));
-        setPayStatus("Статус отправлен в группу: «Подписка оплачена».", "ok");
-        paymentOpened = false;
+      if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user || !tg.initDataUnsafe.user.id) {
+        setPayStatus("Не удалось получить данные Telegram-пользователя. Откройте mini app из бота.", "err");
+        return;
       }
-    }
 
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) {
-        sendPaidPayload();
+      const user = tg.initDataUnsafe.user;
+      setPayStatus("Создаем платеж в ЮKassa...", "warn");
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/yookassa/create-payment`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            botLink,
+            tgUserId: String(user.id),
+            tgUsername: user.username || "",
+            tgFirstName: user.first_name || "",
+            tgLastName: user.last_name || "",
+            returnUrl: window.location.href
+          })
+        });
+
+        const data = await resp.json();
+        if (!resp.ok || !data.ok || !data.confirmationUrl) {
+          setPayStatus("Не удалось создать платеж. Попробуйте еще раз.", "err");
+          return;
+        }
+
+        setPayStatus("Переход на оплату ЮKassa...", "ok");
+        window.location.href = data.confirmationUrl;
+      } catch (err) {
+        setPayStatus("Ошибка соединения с платежным сервером.", "err");
       }
     });
-
-    window.addEventListener("focus", sendPaidPayload);
   </script>
 </body>
 </html>

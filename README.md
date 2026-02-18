@@ -1,36 +1,51 @@
 # PayMiniApp
 
-Telegram mini app для подписки на обслуживание (3000 ₽) + бот для уведомления в группу.
+Автоподтверждение подписки через ЮKassa webhook.
 
-## Mini app flow
+## Как работает
 
-1. При входе запрашивает номер телефона из Telegram.
-2. После подтверждения открывается только экран оплаты.
-3. Пользователь указывает ссылку на своего бота.
-4. Нажимает кнопку оплаты (ЮKassa).
-5. После возврата mini app отправляет в бота: телефон, ссылку на бота, статус `Подписка оплачена`.
+1. Mini app при входе запрашивает номер телефона из Telegram.
+2. После подтверждения показывает только экран оплаты:
+   - Подпись: "Подписка на обслуживание"
+   - Сумма: 3000 ₽
+   - Поле: ссылка на бота клиента
+   - Кнопка: оплата через ЮKassa
+3. Mini app создаёт платёж через backend API.
+4. После события `payment.succeeded` webhook отправляет в группу:
+   - Телефон
+   - Ссылка на бота
+   - Статус: `Подписка оплачена`
 
-## Файлы
+## Структура
 
-- `index.html` — основной mini app
+- `index.html` — mini app
 - `Оплата мини апп.html` — копия mini app
-- `бот/оплата бот.js` — Telegram-бот
-- `бот/config.env.example` — пример конфига
+- `бот/оплата бот.js` — Telegram-бот (запуск mini app + сохранение контактов)
+- `бот/config.env.example` — конфиг бота
+- `api/server.js` — backend для ЮKassa (create-payment + webhook)
+- `api/config.env.example` — конфиг backend
 
-## Настройка бота
-
-Создайте `бот/config.env`:
+## Конфиг бота (`бот/config.env`)
 
 ```env
 BOT_TOKEN="ваш_токен_бота"
 WEBAPP_URL="https://x3percik5x.github.io/PayMiniApp/"
-YOOKASSA_PAYMENT_URL="https://ваша-ссылка-оплаты-юкасса"
-ADMIN_CHAT_ID="chat_id_группы_или_чата"
+ADMIN_CHAT_ID="chat_id_группы"
 ```
 
-Запуск:
+## Конфиг API (`api/config.env`)
 
-```bash
-npm i node-telegram-bot-api
-node "бот/оплата бот.js"
+```env
+PORT="8090"
+ALLOWED_ORIGIN="https://x3percik5x.github.io"
+YOOKASSA_SHOP_ID="shop_id"
+YOOKASSA_SECRET_KEY="secret_key"
+TELEGRAM_BOT_TOKEN="тот_же_токен_бота"
+ADMIN_CHAT_ID="chat_id_группы"
+CONTACTS_FILE="/opt/payminiapp-bot/contacts.json"
 ```
+
+## Важно
+
+Для реального автоподтверждения в ЮKassa нужно настроить HTTP-уведомления на endpoint:
+`https://lambrizsel.duckdns.org/payminiapi/api/yookassa/webhook`
