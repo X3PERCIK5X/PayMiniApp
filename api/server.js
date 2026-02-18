@@ -7,6 +7,8 @@ const BASE_DIR = __dirname;
 const ENV_PATH = path.join(BASE_DIR, "config.env");
 const CONTACTS_DEFAULT = "/opt/payminiapp-bot/contacts.json";
 const PROCESSED_DEFAULT = path.join(BASE_DIR, "processed-payments.json");
+const PAYMENTS_LOG_DEFAULT = path.join(BASE_DIR, "payments-log.json");
+const SUBSCRIPTIONS_DEFAULT = path.join(BASE_DIR, "subscriptions.json");
 
 function loadEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return;
@@ -48,6 +50,8 @@ const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOK
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
 const CONTACTS_FILE = process.env.CONTACTS_FILE || CONTACTS_DEFAULT;
 const PROCESSED_FILE = process.env.PROCESSED_FILE || PROCESSED_DEFAULT;
+const PAYMENTS_LOG_FILE = process.env.PAYMENTS_LOG_FILE || PAYMENTS_LOG_DEFAULT;
+const SUBSCRIPTIONS_FILE = process.env.SUBSCRIPTIONS_FILE || SUBSCRIPTIONS_DEFAULT;
 
 if (!TELEGRAM_BOT_TOKEN || !ADMIN_CHAT_ID) {
   console.error("Missing YOOKASSA_SHOP_ID, YOOKASSA_SECRET_KEY, TELEGRAM_BOT_TOKEN or ADMIN_CHAT_ID in config.env");
@@ -58,6 +62,91 @@ function yookassaConfigured() {
   if (!SHOP_ID || !SECRET_KEY) return false;
   const value = `${SHOP_ID} ${SECRET_KEY}`.toLowerCase();
   return !value.includes("replace_me") && !value.includes("your_shop_id") && !value.includes("your_secret_key");
+}
+
+function normalizeBotLink(raw) {
+  return sanitize(raw).replace(/\/+$/, "");
+}
+
+function getSubscriptionKey(tgUserId, botLink) {
+  return `${String(tgUserId || "").trim()}::${normalizeBotLink(botLink).toLowerCase()}`;
+}
+
+function toIso(value) {
+  const date = value ? new Date(value) : new Date();
+  if (Number.isNaN(date.getTime())) return new Date().toISOString();
+  return date.toISOString();
+}
+
+function addDays(isoDate, days) {
+  const base = new Date(isoDate);
+  if (Number.isNaN(base.getTime())) return new Date().toISOString();
+  base.setUTCDate(base.getUTCDate() + days);
+  return base.toISOString();
+}
+
+async function sendTelegramMessage(chatId, text) {
+  const tgResp = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, text })
+  });
+  const tgData = await tgResp.json();
+  if (!tgResp.ok || !tgData.ok) {
+    throw new Error(`telegram_send_failed: ${JSON.stringify(tgData)}`);
+  }
+}
+
+function appendPaymentLog(entry) {
+  const history = readJson(PAYMENTS_LOG_FILE, []);
+  const next = Array.isArray(history) ? history : [];
+  next.push(entry);
+  const trimmed = next.slice(-5000);
+  writeJson(PAYMENTS_LOG_FILE, trimmed);
+}
+
+function upsertSubscription({ tgUserId, botLink, paymentId, paidAt }) {
+  const subscriptions = readJson(SUBSCRIPTIONS_FILE, {});
+  const key = getSubscriptionKey(tgUserId, botLink);
+  const normalizedPaidAt = toIso(paidAt);
+  const nextExpiresAt = addDays(normalizedPaidAt, 30);
+  subscriptions[key] = {
+    tgUserId: String(tgUserId || "").trim(),
+    botLink: normalizeBotLink(botLink),
+    lastPaymentId: sanitize(paymentId),
+    paidAt: normalizedPaidAt,
+    expiresAt: nextExpiresAt,
+    reminder3dSentAt: "",
+    suspendedSentAt: "",
+    updatedAt: new Date().toISOString()
+  };
+  writeJson(SUBSCRIPTIONS_FILE, subscriptions);
+}
+
+function getGroupedHistoryForUser(tgUserId) {
+  const targetUser = String(tgUserId || "").trim();
+  const history = readJson(PAYMENTS_LOG_FILE, []);
+  const filtered = (Array.isArray(history) ? history : [])
+    .filter((item) => String(item.tgUserId || "").trim() === targetUser)
+    .sort((a, b) => new Date(b.at || 0).getTime() - new Date(a.at || 0).getTime())
+    .slice(0, 10);
+
+  const byBot = {};
+  for (const entry of filtered) {
+    const botLink = normalizeBotLink(entry.botLink) || "не указан";
+    if (!byBot[botLink]) byBot[botLink] = [];
+    byBot[botLink].push({
+      category: sanitize(entry.category) || "Подписка",
+      status: sanitize(entry.status) || "Подписка оплачена",
+      at: toIso(entry.at),
+      amount: sanitize(entry.amount) || "3000.00"
+    });
+  }
+
+  return {
+    latest: filtered,
+    grouped: Object.entries(byBot).map(([botLink, events]) => ({ botLink, events }))
+  };
 }
 
 const app = express();
@@ -85,12 +174,21 @@ app.get("/api/contact-status", (req, res) => {
   return res.json({ ok: true, hasPhone: Boolean(phone) });
 });
 
+app.get("/api/payment-history", (req, res) => {
+  const tgUserId = String(req.query.tgUserId || "").trim();
+  if (!tgUserId) {
+    return res.status(400).json({ ok: false, error: "tgUserId is required" });
+  }
+  const data = getGroupedHistoryForUser(tgUserId);
+  return res.json({ ok: true, ...data });
+});
+
 app.post("/api/yookassa/create-payment", async (req, res) => {
   try {
     if (!yookassaConfigured()) {
       return res.status(503).json({ ok: false, error: "yookassa_not_configured" });
     }
-    const botLink = sanitize(req.body.botLink);
+    const botLink = normalizeBotLink(req.body.botLink);
     const tgUserId = String(req.body.tgUserId || "").trim();
     const tgUsername = sanitize(req.body.tgUsername);
     const tgFirstName = sanitize(req.body.tgFirstName);
@@ -167,7 +265,7 @@ app.post("/api/yookassa/webhook", async (req, res) => {
 
     const metadata = object.metadata || {};
     const tgUserId = String(metadata.tgUserId || "").trim();
-    const botLink = sanitize(metadata.botLink);
+    const botLink = normalizeBotLink(metadata.botLink);
     const paidStatus = sanitize(metadata.status) || "Подписка оплачена";
     const paidAt = sanitize(object.paid_at || new Date().toISOString());
 
@@ -191,19 +289,18 @@ app.post("/api/yookassa/webhook", async (req, res) => {
       `Время оплаты: ${paidAt}`
     ].join("\n");
 
-    const tgResp = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: ADMIN_CHAT_ID,
-        text
-      })
-    });
+    await sendTelegramMessage(ADMIN_CHAT_ID, text);
 
-    const tgData = await tgResp.json();
-    if (!tgResp.ok || !tgData.ok) {
-      return res.status(502).json({ ok: false, error: "telegram_send_failed", details: tgData });
-    }
+    appendPaymentLog({
+      at: paidAt,
+      tgUserId,
+      botLink,
+      category: "Оплата",
+      status: paidStatus,
+      amount: (object.amount && object.amount.value) || "3000.00",
+      paymentId
+    });
+    upsertSubscription({ tgUserId, botLink, paymentId, paidAt });
 
     processed[paymentId] = {
       at: new Date().toISOString(),
@@ -220,3 +317,81 @@ app.post("/api/yookassa/webhook", async (req, res) => {
 app.listen(PORT, "127.0.0.1", () => {
   console.log(`PayMiniApp API started on 127.0.0.1:${PORT}`);
 });
+
+async function runSubscriptionChecks() {
+  try {
+    const subscriptions = readJson(SUBSCRIPTIONS_FILE, {});
+    const now = Date.now();
+    let changed = false;
+
+    for (const key of Object.keys(subscriptions || {})) {
+      const sub = subscriptions[key] || {};
+      const tgUserId = String(sub.tgUserId || "").trim();
+      const botLink = normalizeBotLink(sub.botLink);
+      const expiresAt = toIso(sub.expiresAt);
+      const expiresTs = new Date(expiresAt).getTime();
+      if (!tgUserId || !botLink || Number.isNaN(expiresTs)) continue;
+
+      const diffDays = Math.ceil((expiresTs - now) / (1000 * 60 * 60 * 24));
+
+      if (diffDays <= 3 && diffDays >= 0 && !sub.reminder3dSentAt) {
+        const reminderText = [
+          "Напоминание об оплате:",
+          `Через ${diffDays} дн. заканчивается обслуживание.`,
+          `Бот: ${botLink}`,
+          "Продлите подписку в mini app."
+        ].join("\n");
+        try {
+          await sendTelegramMessage(tgUserId, reminderText);
+          sub.reminder3dSentAt = new Date().toISOString();
+          changed = true;
+          appendPaymentLog({
+            at: new Date().toISOString(),
+            tgUserId,
+            botLink,
+            category: "Напоминание",
+            status: "До конца 3 дня",
+            amount: "0.00",
+            paymentId: ""
+          });
+        } catch (err) {
+          console.error("Reminder send failed:", err.message);
+        }
+      }
+
+      const suspensionTs = expiresTs + 24 * 60 * 60 * 1000;
+      if (now >= suspensionTs && !sub.suspendedSentAt) {
+        const suspendedText = [
+          "Обслуживание приостановлено.",
+          `Бот: ${botLink}`,
+          "Оплата не поступила в течение 31 дня. Внесите оплату для возобновления."
+        ].join("\n");
+        try {
+          await sendTelegramMessage(tgUserId, suspendedText);
+          sub.suspendedSentAt = new Date().toISOString();
+          changed = true;
+          appendPaymentLog({
+            at: new Date().toISOString(),
+            tgUserId,
+            botLink,
+            category: "Приостановка",
+            status: "Обслуживание приостановлено",
+            amount: "0.00",
+            paymentId: ""
+          });
+        } catch (err) {
+          console.error("Suspended send failed:", err.message);
+        }
+      }
+    }
+
+    if (changed) {
+      writeJson(SUBSCRIPTIONS_FILE, subscriptions);
+    }
+  } catch (err) {
+    console.error("Subscription check failed:", err.message);
+  }
+}
+
+setInterval(runSubscriptionChecks, 6 * 60 * 60 * 1000);
+runSubscriptionChecks();

@@ -100,9 +100,7 @@ bot.onText(/\/start/, async (msg) => {
     await bot.sendMessage(chatId, welcomeText, { reply_markup: inlineMarkup });
   }
 
-  await bot.sendMessage(chatId, "Кнопка «Оплата» закреплена внизу чата.", {
-    reply_markup: keyboardMarkup
-  });
+  await bot.sendMessage(chatId, " ", { reply_markup: keyboardMarkup });
 });
 
 bot.on("message", async (msg) => {
