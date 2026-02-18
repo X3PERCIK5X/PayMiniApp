@@ -81,14 +81,12 @@ bot.onText(/\/start/, async (msg) => {
     "Откройте мини-апп, укажите название вашего бота и подтвердите оплату подписки.",
     {
       reply_markup: {
-        keyboard: [[{ text: "Открыть мини-апп", web_app: { url: WEBAPP_URL } }]],
-        resize_keyboard: true,
-        one_time_keyboard: false
+        inline_keyboard: [
+          [{ text: "Открыть мини-апп", web_app: { url: WEBAPP_URL } }]
+        ]
       }
     }
   );
-
-  await bot.sendMessage(chatId, `Прямая ссылка оплаты: ${TINKOFF_PAYMENT_URL}`);
 });
 
 bot.on("message", async (msg) => {
