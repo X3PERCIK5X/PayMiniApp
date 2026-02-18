@@ -10,48 +10,49 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --bg-1: #060f26;
-      --bg-2: #0a1e46;
-      --bg-3: #134288;
-      --card: rgba(13, 24, 50, 0.8);
-      --line: rgba(166, 193, 246, 0.22);
-      --text: #f6f9ff;
-      --muted: #aabde2;
-      --accent: #61b2ff;
-      --accent-2: #77f1cf;
-      --ok: #6df0c9;
-      --warn: #ffd27a;
-      --danger: #ff9b9b;
-      --radius: 22px;
-      --shadow: 0 24px 70px rgba(2, 10, 24, 0.55);
+      --bg-1: #071230;
+      --bg-2: #0c2152;
+      --bg-3: #1a56a6;
+      --line: rgba(177, 203, 248, 0.24);
+      --text: #f5f8ff;
+      --muted: #aec2ea;
+      --accent: #66b5ff;
+      --accent-2: #75efd3;
     }
 
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; }
+    html, body { margin: 0; padding: 0; height: 100%; }
 
     body {
-      min-height: 100vh;
       font-family: "Manrope", sans-serif;
       color: var(--text);
       background:
-        radial-gradient(1300px 800px at -15% -20%, #2f60ff 0%, transparent 57%),
-        radial-gradient(850px 500px at 110% 120%, #17a8ff 0%, transparent 62%),
-        linear-gradient(150deg, var(--bg-1), var(--bg-2) 52%, var(--bg-3));
-      padding: 16px;
+        radial-gradient(1000px 650px at -10% -20%, #2f66ff 0%, transparent 56%),
+        radial-gradient(700px 420px at 110% 120%, #19a9ff 0%, transparent 62%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2) 52%, var(--bg-3));
+      overflow: hidden;
     }
 
-    .wrap {
-      width: min(520px, 100%);
+    .screen {
+      width: 100vw;
+      height: 100dvh;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom)) 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .hidden { display: none; }
+
+    .panel {
+      width: min(620px, 100%);
       margin: 0 auto;
-      display: grid;
-      gap: 12px;
-    }
-
-    .card {
       border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: linear-gradient(168deg, rgba(24, 40, 78, 0.9), var(--card));
-      box-shadow: var(--shadow);
+      border-radius: 24px;
+      background: linear-gradient(165deg, rgba(20, 35, 76, 0.86), rgba(10, 20, 46, 0.82));
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 55px rgba(2, 10, 24, 0.5);
       padding: 18px;
     }
 
@@ -61,7 +62,7 @@
       gap: 7px;
       border: 1px solid rgba(166, 193, 246, 0.28);
       border-radius: 999px;
-      padding: 6px 10px;
+      padding: 6px 11px;
       font-size: 11px;
       font-weight: 800;
       letter-spacing: .08em;
@@ -75,65 +76,80 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: var(--ok);
-      box-shadow: 0 0 10px var(--ok);
+      background: #6ff2cd;
+      box-shadow: 0 0 10px #6ff2cd;
     }
 
     h1 {
       margin: 0 0 8px;
       font-family: "Unbounded", sans-serif;
-      font-size: clamp(24px, 5.4vw, 34px);
-      line-height: 1.15;
+      font-size: clamp(26px, 7vw, 40px);
+      line-height: 1.12;
+      letter-spacing: -0.02em;
     }
 
     .lead {
       margin: 0;
       color: var(--muted);
-      font-size: 14px;
+      font-size: 15px;
       line-height: 1.5;
     }
 
     .price {
       margin-top: 14px;
       border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 12px;
+      border-radius: 18px;
+      padding: 14px;
       background: linear-gradient(180deg, rgba(133, 181, 249, 0.14), rgba(120, 169, 246, 0.05));
     }
 
-    .price small { display: block; color: #bdd2f6; font-size: 12px; margin-bottom: 4px; }
-    .amount { font-family: "Unbounded", sans-serif; font-size: clamp(30px, 8vw, 42px); line-height: 1; }
+    .price small {
+      display: block;
+      color: #bdd2f6;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
 
-    .field { margin-top: 14px; }
-    .field label { display: block; margin-bottom: 6px; font-size: 13px; color: #c5d7ff; font-weight: 700; }
+    .amount {
+      font-family: "Unbounded", sans-serif;
+      font-size: clamp(34px, 10vw, 50px);
+      line-height: 1;
+    }
+
+    .field { margin-top: 18px; }
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 13px;
+      color: #c5d7ff;
+      font-weight: 700;
+    }
 
     .input {
       width: 100%;
-      border: 1px solid rgba(167, 193, 243, 0.28);
-      border-radius: 12px;
-      padding: 12px 13px;
-      font-size: 14px;
+      border: 1px solid rgba(167, 193, 243, 0.32);
+      border-radius: 13px;
+      padding: 13px 14px;
+      font-size: 15px;
       color: var(--text);
       background: rgba(118, 157, 232, 0.09);
       outline: none;
     }
 
+    .input:focus {
+      border-color: rgba(125, 179, 255, 0.85);
+      box-shadow: 0 0 0 3px rgba(99, 178, 255, 0.16);
+    }
+
     .btn {
       width: 100%;
       border: 0;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 14px;
+      border-radius: 14px;
+      padding: 14px 15px;
+      font-size: 15px;
       font-weight: 800;
       cursor: pointer;
     }
-
-    .btn-primary {
-      color: #06284c;
-      background: linear-gradient(95deg, var(--accent), var(--accent-2));
-      box-shadow: 0 10px 24px rgba(95, 179, 255, 0.35);
-    }
-    .pay-action { margin-top: 18px; }
 
     .btn-soft {
       color: #cfe0ff;
@@ -142,37 +158,29 @@
       margin-top: 10px;
     }
 
-    .status {
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(173, 200, 247, 0.23);
-      background: rgba(123, 166, 236, 0.09);
-      font-size: 13px;
-      line-height: 1.4;
-      color: #c8dbff;
+    .btn-primary {
+      margin-top: 26px;
+      color: #052545;
+      background: linear-gradient(95deg, var(--accent), var(--accent-2));
+      box-shadow: 0 12px 28px rgba(95, 179, 255, 0.34);
     }
-
-    .status.ok { border-color: rgba(141, 231, 203, 0.35); color: #ceffe8; background: rgba(95, 193, 157, 0.13); }
-    .status.warn { border-color: rgba(255, 208, 123, 0.35); color: #ffe6b3; background: rgba(204, 155, 66, 0.14); }
-    .status.err { border-color: rgba(255, 151, 151, 0.35); color: #ffd1d1; background: rgba(184, 87, 87, 0.14); }
-
-    .hidden { display: none; }
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <section id="authScreen" class="card">
+  <section id="authScreen" class="screen">
+    <div class="panel">
       <span class="chip"><i></i> Авторизация</span>
       <h1>Подтвердите номер</h1>
-      <p class="lead">Для оплаты нужно поделиться номером телефона из Telegram. После этого откроется экран оплаты.</p>
+      <p class="lead">Чтобы перейти к оплате, поделитесь номером телефона в Telegram.</p>
       <button id="requestPhoneBtn" class="btn btn-soft" type="button">Поделиться номером</button>
-      <div id="authStatus" class="status warn">Запрашиваем номер автоматически...</div>
-    </section>
+    </div>
+  </section>
 
-    <section id="paymentScreen" class="card hidden">
+  <section id="paymentScreen" class="screen hidden">
+    <div class="panel">
       <span class="chip"><i></i> Оплата</span>
       <h1>Подписка на обслуживание</h1>
+
       <div class="price">
         <small>Сумма к оплате</small>
         <div class="amount">3 000 ₽</div>
@@ -183,10 +191,9 @@
         <input id="botLinkInput" class="input" type="url" placeholder="https://t.me/your_bot" maxlength="200" />
       </div>
 
-      <button id="payBtn" class="btn btn-primary pay-action" type="button">Оплатить через ЮKassa</button>
-      <div id="payStatus" class="status warn">После оплаты ЮKassa отправит автоподтверждение в группу: телефон, ссылка на бота и статус «Подписка оплачена».</div>
-    </section>
-  </main>
+      <button id="payBtn" class="btn btn-primary" type="button">Оплатить через ЮKassa</button>
+    </div>
+  </section>
 
   <script>
     const API_BASE = "https://lambrizsel.duckdns.org/payminiapi";
@@ -194,22 +201,18 @@
     const authScreen = document.getElementById("authScreen");
     const paymentScreen = document.getElementById("paymentScreen");
     const requestPhoneBtn = document.getElementById("requestPhoneBtn");
-    const authStatus = document.getElementById("authStatus");
-    const payStatus = document.getElementById("payStatus");
     const botLinkInput = document.getElementById("botLinkInput");
     const payBtn = document.getElementById("payBtn");
 
     let tg = null;
-
     let contactApproved = false;
-    function setAuthStatus(text, tone) {
-      authStatus.textContent = text;
-      authStatus.className = `status ${tone || ""}`.trim();
-    }
 
-    function setPayStatus(text, tone) {
-      payStatus.textContent = text;
-      payStatus.className = `status ${tone || ""}`.trim();
+    function showError(message) {
+      if (tg && typeof tg.showAlert === "function") {
+        tg.showAlert(message);
+      } else {
+        alert(message);
+      }
     }
 
     function openPaymentScreen() {
@@ -223,24 +226,19 @@
 
     function requestContact() {
       if (!tg || typeof tg.requestContact !== "function") {
-        setAuthStatus("API Telegram еще не готово. Подождите 1-2 секунды и нажмите кнопку снова.", "warn");
+        showError("Подождите 1-2 секунды и повторите.");
         return;
       }
-
-      setAuthStatus("Отправляем запрос номера в Telegram...", "warn");
 
       try {
         tg.requestContact((status) => {
           if (status === true || status === "sent" || status === "allowed") {
             contactApproved = true;
-            setAuthStatus("Номер телефона получен. Переходим к оплате...", "ok");
-            setTimeout(openPaymentScreen, 350);
-          } else {
-            setAuthStatus("Доступ к номеру не получен. Нажмите кнопку и разрешите контакт.", "warn");
+            setTimeout(openPaymentScreen, 250);
           }
         });
-      } catch (err) {
-        setAuthStatus("Не удалось запросить контакт. Повторите ещё раз.", "err");
+      } catch {
+        showError("Не удалось запросить номер. Нажмите кнопку еще раз.");
       }
     }
 
@@ -252,39 +250,35 @@
         requestContact();
         return;
       }
-
       if (retries > 0) {
         setTimeout(() => initTelegramContext(retries - 1), 150);
         return;
       }
-
-      setAuthStatus("Откройте mini app через кнопку «Оплата» в боте Telegram.", "err");
+      showError("Откройте mini app через кнопку «Оплата» в Telegram-боте.");
     }
 
     initTelegramContext(20);
-
     requestPhoneBtn.addEventListener("click", requestContact);
 
     payBtn.addEventListener("click", async () => {
       const botLink = normalizeLink(botLinkInput.value);
 
       if (!contactApproved) {
-        setPayStatus("Сначала подтвердите номер телефона.", "err");
+        showError("Сначала подтвердите номер телефона.");
         return;
       }
 
       if (!botLink) {
-        setPayStatus("Укажите ссылку на бота перед оплатой.", "err");
+        showError("Укажите ссылку на бота.");
         return;
       }
 
       if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user || !tg.initDataUnsafe.user.id) {
-        setPayStatus("Не удалось получить данные Telegram-пользователя. Откройте mini app из бота.", "err");
+        showError("Не удалось получить данные Telegram-пользователя.");
         return;
       }
 
       const user = tg.initDataUnsafe.user;
-      setPayStatus("Создаем платеж в ЮKassa...", "warn");
 
       try {
         const resp = await fetch(`${API_BASE}/api/yookassa/create-payment`, {
@@ -302,14 +296,13 @@
 
         const data = await resp.json();
         if (!resp.ok || !data.ok || !data.confirmationUrl) {
-          setPayStatus("Не удалось создать платеж. Попробуйте еще раз.", "err");
+          showError("Не удалось создать платеж. Попробуйте еще раз.");
           return;
         }
 
-        setPayStatus("Переход на оплату ЮKassa...", "ok");
         window.location.href = data.confirmationUrl;
-      } catch (err) {
-        setPayStatus("Ошибка соединения с платежным сервером.", "err");
+      } catch {
+        showError("Ошибка соединения с платежным сервером.");
       }
     });
 
