@@ -76,9 +76,10 @@ const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
   const welcomeText = "Подписка на обслуживание ботов и mini app каталогов.\nНажмите «Оплата», чтобы открыть mini app.";
+  const webAppUrl = `${WEBAPP_URL}${WEBAPP_URL.includes(\"?\") ? \"&\" : \"?\"}ts=${Date.now()}`;
   const markup = {
     inline_keyboard: [
-      [{ text: "Оплата", web_app: { url: WEBAPP_URL } }]
+      [{ text: "Оплата", web_app: { url: webAppUrl } }]
     ]
   };
 
