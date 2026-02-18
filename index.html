@@ -206,6 +206,7 @@
 
     let tg = null;
     let contactApproved = false;
+    let currentUserId = "";
 
     function showError(message) {
       if (tg && typeof tg.showAlert === "function") {
@@ -234,6 +235,9 @@
         tg.requestContact((status) => {
           if (status === true || status === "sent" || status === "allowed") {
             contactApproved = true;
+            if (currentUserId) {
+              localStorage.setItem(`paymini_phone_ok_${currentUserId}`, "1");
+            }
             setTimeout(openPaymentScreen, 250);
           }
         });
@@ -242,12 +246,53 @@
       }
     }
 
+    function hasLocalPhoneFlag() {
+      if (!currentUserId) return false;
+      return localStorage.getItem(`paymini_phone_ok_${currentUserId}`) === "1";
+    }
+
+    async function hasServerPhoneFlag() {
+      if (!currentUserId) return false;
+      try {
+        const resp = await fetch(`${API_BASE}/api/contact-status?tgUserId=${encodeURIComponent(currentUserId)}`);
+        const data = await resp.json();
+        return Boolean(resp.ok && data && data.ok && data.hasPhone);
+      } catch {
+        return false;
+      }
+    }
+
+    async function authorizeOrSkip() {
+      if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user || !tg.initDataUnsafe.user.id) {
+        requestContact();
+        return;
+      }
+
+      currentUserId = String(tg.initDataUnsafe.user.id);
+
+      if (hasLocalPhoneFlag()) {
+        contactApproved = true;
+        openPaymentScreen();
+        return;
+      }
+
+      const hasServerPhone = await hasServerPhoneFlag();
+      if (hasServerPhone) {
+        contactApproved = true;
+        localStorage.setItem(`paymini_phone_ok_${currentUserId}`, "1");
+        openPaymentScreen();
+        return;
+      }
+
+      requestContact();
+    }
+
     function initTelegramContext(retries) {
       tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       if (tg) {
         tg.ready();
         tg.expand();
-        requestContact();
+        authorizeOrSkip();
         return;
       }
       if (retries > 0) {

@@ -78,9 +78,12 @@ bot.onText(/\/start/, async (msg) => {
   const welcomeText = "Подписка на обслуживание ботов и mini app каталогов.\nНажмите «Оплата», чтобы открыть mini app.";
   const webAppUrl = `${WEBAPP_URL}${WEBAPP_URL.includes("?") ? "&" : "?"}ts=${Date.now()}`;
   const markup = {
-    inline_keyboard: [
+    keyboard: [
       [{ text: "Оплата", web_app: { url: webAppUrl } }]
-    ]
+    ],
+    resize_keyboard: true,
+    one_time_keyboard: false,
+    is_persistent: true
   };
 
   if (fs.existsSync(WELCOME_IMAGE_PATH)) {

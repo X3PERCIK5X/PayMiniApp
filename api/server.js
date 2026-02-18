@@ -75,6 +75,16 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "payminiapp-api" });
 });
 
+app.get("/api/contact-status", (req, res) => {
+  const tgUserId = String(req.query.tgUserId || "").trim();
+  if (!tgUserId) {
+    return res.status(400).json({ ok: false, error: "tgUserId is required" });
+  }
+  const contacts = readJson(CONTACTS_FILE, {});
+  const phone = sanitize((contacts[tgUserId] || {}).phone);
+  return res.json({ ok: true, hasPhone: Boolean(phone) });
+});
+
 app.post("/api/yookassa/create-payment", async (req, res) => {
   try {
     if (!yookassaConfigured()) {
