@@ -9,21 +9,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-a: #07122d;
-      --bg-b: #0c214e;
-      --bg-c: #123a79;
-      --card: rgba(16, 29, 58, 0.72);
-      --line: rgba(180, 204, 255, 0.2);
-      --text: #f4f8ff;
-      --muted: #a9bde5;
-      --accent: #66b5ff;
-      --accent-2: #72f2d0;
-      --btn-text: #072a51;
-      --ok: #8bf6db;
-      --shadow: 0 26px 80px rgba(1, 9, 23, 0.58);
+      --bg-1: #060f26;
+      --bg-2: #0a1e46;
+      --bg-3: #134288;
+      --card: rgba(13, 24, 50, 0.76);
+      --line: rgba(166, 193, 246, 0.22);
+      --text: #f6f9ff;
+      --muted: #aabde2;
+      --accent: #61b2ff;
+      --accent-2: #77f1cf;
+      --shadow: 0 24px 70px rgba(2, 10, 24, 0.55);
+      --ok: #6df0c9;
+      --warn: #ffd27a;
+      --danger: #ff9b9b;
       --radius-xl: 28px;
-      --radius-lg: 20px;
-      --radius-md: 16px;
+      --radius-lg: 18px;
     }
 
     * { box-sizing: border-box; }
@@ -31,32 +31,32 @@
 
     body {
       min-height: 100vh;
+      padding: 16px 16px 102px;
       font-family: "Manrope", sans-serif;
       color: var(--text);
       background:
-        radial-gradient(1400px 820px at -15% -10%, #2f5eff 0%, transparent 58%),
-        radial-gradient(900px 520px at 115% 110%, #19a8ff 0%, transparent 62%),
-        linear-gradient(150deg, var(--bg-a), var(--bg-b) 53%, var(--bg-c));
-      padding: 18px 18px 100px;
+        radial-gradient(1300px 800px at -15% -20%, #2f60ff 0%, transparent 57%),
+        radial-gradient(850px 500px at 110% 120%, #17a8ff 0%, transparent 62%),
+        linear-gradient(150deg, var(--bg-1), var(--bg-2) 52%, var(--bg-3));
       overflow-x: hidden;
     }
 
-    .glow {
+    .orb {
       position: fixed;
       border-radius: 999px;
-      filter: blur(60px);
-      opacity: 0.5;
       pointer-events: none;
+      filter: blur(60px);
+      opacity: .52;
       z-index: 0;
-      animation: drift 12s ease-in-out infinite;
+      animation: move 12s ease-in-out infinite;
     }
 
-    .glow.one { width: 240px; height: 240px; top: -70px; right: -60px; background: #64beff; }
-    .glow.two { width: 300px; height: 300px; bottom: -100px; left: -80px; background: #56f6d4; animation-delay: -3s; }
+    .orb.one { width: 240px; height: 240px; top: -70px; right: -65px; background: #5bc0ff; }
+    .orb.two { width: 280px; height: 280px; bottom: -100px; left: -90px; background: #58fad6; animation-delay: -3s; }
 
-    @keyframes drift {
+    @keyframes move {
       0%, 100% { transform: translate3d(0, 0, 0); }
-      50% { transform: translate3d(16px, -22px, 0); }
+      50% { transform: translate3d(14px, -18px, 0); }
     }
 
     .app {
@@ -65,46 +65,48 @@
       width: min(760px, 100%);
       margin: 0 auto;
       display: grid;
-      gap: 14px;
+      gap: 12px;
     }
 
     .card {
-      border: 1px solid var(--line);
       border-radius: var(--radius-xl);
-      background: linear-gradient(168deg, rgba(24, 40, 79, 0.88), var(--card));
-      backdrop-filter: blur(14px);
+      border: 1px solid var(--line);
+      background: linear-gradient(168deg, rgba(24, 40, 78, 0.88), var(--card));
       box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      padding: 20px;
+      animation: show .45s ease both;
     }
 
-    .hero {
-      padding: 22px;
-      animation: rise .45s ease both;
+    @keyframes show {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .row {
+    .head {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 10px;
       flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
     }
 
-    .pill {
+    .chip {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      border: 1px solid rgba(189, 209, 247, 0.28);
+      gap: 7px;
+      padding: 7px 11px;
       border-radius: 999px;
-      padding: 7px 12px;
       font-size: 11px;
       font-weight: 800;
-      letter-spacing: .08em;
       text-transform: uppercase;
-      color: #cfe0ff;
-      background: rgba(153, 187, 255, 0.14);
+      letter-spacing: .08em;
+      border: 1px solid rgba(166, 193, 246, 0.28);
+      background: rgba(156, 187, 246, 0.14);
+      color: #cbddff;
     }
 
-    .pill .dot {
+    .chip i {
       width: 7px;
       height: 7px;
       border-radius: 50%;
@@ -113,309 +115,320 @@
     }
 
     h1 {
-      margin: 14px 0 8px;
+      margin: 0 0 8px;
       font-family: "Unbounded", sans-serif;
-      font-size: clamp(26px, 5.8vw, 42px);
-      line-height: 1.12;
+      font-size: clamp(25px, 5.6vw, 40px);
+      line-height: 1.14;
       letter-spacing: -0.02em;
     }
 
-    .sub {
+    .lead {
       margin: 0;
       color: var(--muted);
       font-size: 14px;
-      line-height: 1.55;
+      line-height: 1.5;
     }
 
     .price {
-      margin-top: 18px;
-      border: 1px solid var(--line);
+      margin-top: 14px;
       border-radius: var(--radius-lg);
-      padding: 16px;
-      background: linear-gradient(180deg, rgba(132, 182, 255, 0.14), rgba(106, 160, 242, 0.05));
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .price small {
-      display: block;
-      font-size: 12px;
-      color: #bdd2f8;
-      margin-bottom: 4px;
-    }
-
-    .amount {
-      font-family: "Unbounded", sans-serif;
-      font-size: clamp(30px, 9vw, 46px);
-      line-height: 1;
-      letter-spacing: -0.03em;
-      white-space: nowrap;
-    }
-
-    .muted-note {
-      max-width: 130px;
-      font-size: 12px;
-      line-height: 1.35;
-      color: #9bb3dc;
-      text-align: right;
-    }
-
-    .section {
-      padding: 16px;
-      border-radius: var(--radius-xl);
       border: 1px solid var(--line);
-      background: linear-gradient(160deg, rgba(16, 29, 57, 0.8), rgba(11, 22, 45, 0.72));
-      animation: rise .55s ease both;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: end;
+      background: linear-gradient(180deg, rgba(133, 181, 249, 0.14), rgba(120, 169, 246, 0.05));
     }
 
-    .section h2 {
+    .price small { display: block; color: #bdd2f6; font-size: 12px; margin-bottom: 4px; }
+    .amount { font-family: "Unbounded", sans-serif; font-size: clamp(30px, 8vw, 44px); line-height: 1; }
+    .price-note { max-width: 160px; font-size: 12px; color: #a0b7df; text-align: right; }
+
+    .block-title {
       margin: 0 0 10px;
-      font-size: 15px;
-      letter-spacing: .04em;
+      font-size: 13px;
+      letter-spacing: .08em;
       text-transform: uppercase;
       color: #cadeff;
     }
 
-    .grid {
+    .field {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
+      gap: 7px;
+      margin-bottom: 10px;
     }
 
-    .item {
-      border: 1px solid rgba(174, 198, 242, 0.18);
-      border-radius: var(--radius-md);
-      padding: 12px;
-      background: rgba(130, 174, 249, 0.06);
-      min-height: 100%;
-    }
-
-    .item strong {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 6px;
-    }
-
-    .item p {
-      margin: 0;
-      color: var(--muted);
+    .field label {
       font-size: 13px;
-      line-height: 1.45;
-    }
-
-    .steps {
-      display: grid;
-      gap: 8px;
-    }
-
-    .step {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      border: 1px solid rgba(174, 198, 242, 0.14);
-      border-radius: 14px;
-      padding: 10px;
-      background: rgba(121, 164, 238, 0.06);
-    }
-
-    .step i {
-      width: 24px;
-      height: 24px;
-      flex: 0 0 24px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-style: normal;
-      font-size: 12px;
-      font-weight: 800;
-      background: linear-gradient(120deg, var(--accent), var(--accent-2));
-      color: var(--btn-text);
-    }
-
-    .step b { display: block; font-size: 14px; margin-bottom: 2px; }
-    .step span { font-size: 12px; color: var(--muted); }
-
-    .faq {
-      display: grid;
-      gap: 8px;
-    }
-
-    .q {
-      border: 1px solid rgba(176, 200, 243, 0.2);
-      border-radius: 14px;
-      overflow: hidden;
-      background: rgba(129, 172, 240, 0.05);
-    }
-
-    .q button {
-      width: 100%;
-      background: transparent;
-      border: 0;
-      padding: 12px;
-      color: var(--text);
-      text-align: left;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 14px;
+      color: #c5d7ff;
       font-weight: 700;
-      cursor: pointer;
     }
 
-    .q p {
-      margin: 0;
-      padding: 0 12px 12px;
+    .input {
+      width: 100%;
+      border: 1px solid rgba(167, 193, 243, 0.28);
+      border-radius: 13px;
+      padding: 12px 13px;
+      font-size: 14px;
+      color: var(--text);
+      background: rgba(118, 157, 232, 0.09);
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .input:focus {
+      border-color: rgba(125, 179, 255, 0.72);
+      box-shadow: 0 0 0 3px rgba(99, 178, 255, 0.16);
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .btn,
+    .btn-soft {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 13px;
       font-size: 13px;
-      line-height: 1.45;
-      color: var(--muted);
-      display: none;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .15s ease;
     }
 
-    .q.open p { display: block; }
+    .btn:active,
+    .btn-soft:active { transform: translateY(1px); }
 
-    .pay-wrap {
+    .btn {
+      color: #06284c;
+      background: linear-gradient(95deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 24px rgba(95, 179, 255, 0.35);
+    }
+
+    .btn-soft {
+      color: #cfe0ff;
+      border: 1px solid rgba(174, 198, 242, 0.3);
+      background: rgba(123, 167, 243, 0.12);
+    }
+
+    .status {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(173, 200, 247, 0.23);
+      background: rgba(123, 166, 236, 0.09);
+      font-size: 13px;
+      line-height: 1.4;
+      color: #c8dbff;
+    }
+
+    .status.ok { border-color: rgba(141, 231, 203, 0.35); color: #ceffe8; background: rgba(95, 193, 157, 0.13); }
+    .status.warn { border-color: rgba(255, 208, 123, 0.35); color: #ffe6b3; background: rgba(204, 155, 66, 0.14); }
+    .status.err { border-color: rgba(255, 151, 151, 0.35); color: #ffd1d1; background: rgba(184, 87, 87, 0.14); }
+
+    .hint {
+      margin-top: 8px;
+      color: #a3b8de;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .pay-sticky {
       position: fixed;
       left: 0;
       right: 0;
       bottom: 0;
       z-index: 10;
-      padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
-      background: linear-gradient(180deg, rgba(7, 18, 45, 0), rgba(7, 18, 45, 0.92));
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      background: linear-gradient(180deg, rgba(6, 15, 38, 0), rgba(6, 15, 38, 0.94));
       backdrop-filter: blur(8px);
     }
 
-    .pay-btn {
-      width: min(760px, calc(100% - 4px));
+    .pay-link {
+      width: min(760px, 100%);
       margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 15px 18px;
-      border: 0;
-      border-radius: 16px;
       text-decoration: none;
+      border-radius: 14px;
+      padding: 14px 14px;
+      color: #08294d;
       font-size: 16px;
       font-weight: 800;
-      color: var(--btn-text);
       background: linear-gradient(95deg, var(--accent), var(--accent-2));
-      box-shadow: 0 14px 40px rgba(98, 180, 255, 0.42);
-      transition: transform .15s ease;
+      box-shadow: 0 13px 34px rgba(95, 180, 255, 0.4);
     }
 
-    .pay-btn:active { transform: translateY(1px); }
-
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (max-width: 680px) {
-      .grid { grid-template-columns: 1fr; }
-      .muted-note { text-align: left; max-width: none; }
+    @media (max-width: 700px) {
+      body { padding: 12px 12px 102px; }
+      .card { padding: 16px; border-radius: 22px; }
       .price { align-items: flex-start; flex-direction: column; }
-      body { padding: 12px 12px 100px; }
+      .price-note { text-align: left; max-width: none; }
     }
   </style>
 </head>
 <body>
-  <div class="glow one" aria-hidden="true"></div>
-  <div class="glow two" aria-hidden="true"></div>
+  <div class="orb one" aria-hidden="true"></div>
+  <div class="orb two" aria-hidden="true"></div>
 
   <main class="app">
-    <section class="card hero">
-      <div class="row">
-        <span class="pill"><span class="dot"></span> Secure Payment</span>
-        <span class="pill">Подписка 30 дней</span>
+    <section class="card">
+      <div class="head">
+        <span class="chip"><i></i> Secure Payment</span>
+        <span class="chip">Подписка 30 дней</span>
       </div>
-
-      <h1>Доступ к продукту</h1>
-      <p class="sub">Полноценный mini app для быстрой оплаты без тарифных планов и лишних шагов.</p>
-
+      <h1>Подписка на обслуживание</h1>
+      <p class="lead">Шаблонные боты, mini app каталоги и сопровождение. Оплата фиксированная, продление выполняется вручную администратором.</p>
       <div class="price" aria-label="Сумма оплаты">
         <div>
           <small>К оплате</small>
           <div class="amount">3 000 ₽</div>
         </div>
-        <div class="muted-note">Один платеж, без автосписаний</div>
+        <div class="price-note">После оплаты нажмите «Я оплатил подписку», чтобы отправить уведомление администратору.</div>
       </div>
     </section>
 
-    <section class="section">
-      <h2>Что входит</h2>
-      <div class="grid">
-        <article class="item">
-          <strong>Мгновенная активация</strong>
-          <p>После подтверждения платежа доступ активируется автоматически.</p>
-        </article>
-        <article class="item">
-          <strong>Простая оплата</strong>
-          <p>Без длинных форм и регистрации, переход сразу к оплате Tinkoff.</p>
-        </article>
-        <article class="item">
-          <strong>Поддержка в боте</strong>
-          <p>Если нужен чек или помощь, можно обратиться прямо в Telegram.</p>
-        </article>
-      </div>
-    </section>
+    <section class="card">
+      <h2 class="block-title">Идентификация плательщика</h2>
 
-    <section class="section">
-      <h2>Как это работает</h2>
-      <div class="steps">
-        <div class="step"><i>1</i><div><b>Нажмите кнопку оплаты</b><span>Приложение переведет на безопасную ссылку Tinkoff.</span></div></div>
-        <div class="step"><i>2</i><div><b>Оплатите 3000 ₽</b><span>Фиксированная сумма без тарифов и дополнительных опций.</span></div></div>
-        <div class="step"><i>3</i><div><b>Получите доступ</b><span>После оплаты подписка становится активной.</span></div></div>
+      <div class="field">
+        <label for="phoneInput">Телефон</label>
+        <input id="phoneInput" class="input" type="tel" placeholder="+7XXXXXXXXXX" autocomplete="tel" />
       </div>
-    </section>
 
-    <section class="section">
-      <h2>FAQ</h2>
-      <div class="faq" id="faq">
-        <div class="q open">
-          <button type="button">Оплата точно безопасная?<span>+</span></button>
-          <p>Да. Оплата проходит на стороне Tinkoff по защищенному платежному URL.</p>
-        </div>
-        <div class="q">
-          <button type="button">Сумма всегда 3000 ₽?<span>+</span></button>
-          <p>Да, в этом mini app действует единая фиксированная стоимость подписки.</p>
-        </div>
-        <div class="q">
-          <button type="button">Что делать, если не открылся доступ?<span>+</span></button>
-          <p>Напишите в ваш Telegram-бот поддержки, приложив время и скрин оплаты.</p>
-        </div>
+      <div class="row-actions">
+        <button id="requestPhoneBtn" class="btn-soft" type="button">Поделиться номером из Telegram</button>
+      </div>
+
+      <div class="field" style="margin-top: 12px;">
+        <label for="botNameInput">Название вашего бота</label>
+        <input id="botNameInput" class="input" type="text" placeholder="Например: @my_catalog_bot" maxlength="80" />
+      </div>
+
+      <div id="status" class="status warn">При входе mini app автоматически запрашивает номер телефона в Telegram.</div>
+      <p class="hint">Если Telegram не дал номер автоматически, введите его вручную. Без телефона и названия бота уведомление отправить нельзя.</p>
+
+      <div class="row-actions" style="margin-top: 12px;">
+        <button id="confirmPaidBtn" class="btn" type="button">Я оплатил подписку</button>
       </div>
     </section>
   </main>
 
-  <div class="pay-wrap">
-    <a id="payBtn" class="pay-btn" href="#" target="_blank" rel="noopener noreferrer">Оплатить через Тинькофф</a>
+  <div class="pay-sticky">
+    <a id="payLink" class="pay-link" href="#" target="_blank" rel="noopener noreferrer">Оплатить через Тинькофф</a>
   </div>
 
   <script>
     const TINKOFF_PAYMENT_URL = "https://www.tinkoff.ru/";
 
+    const phoneInput = document.getElementById("phoneInput");
+    const botNameInput = document.getElementById("botNameInput");
+    const requestPhoneBtn = document.getElementById("requestPhoneBtn");
+    const confirmPaidBtn = document.getElementById("confirmPaidBtn");
+    const statusEl = document.getElementById("status");
+    const payLink = document.getElementById("payLink");
+
+    payLink.href = TINKOFF_PAYMENT_URL;
+
+    let payClicked = false;
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+
+    function setStatus(text, tone) {
+      statusEl.textContent = text;
+      statusEl.className = `status ${tone || ""}`.trim();
+    }
+
+    function normalizePhone(raw) {
+      return String(raw || "").replace(/[^\d+]/g, "").trim();
+    }
+
+    function requestPhoneAuto() {
+      if (!tg || typeof tg.requestContact !== "function") {
+        setStatus("Автозапрос номера недоступен в этом окружении. Введите телефон вручную.", "warn");
+        return;
+      }
+
+      setStatus("Отправили запрос номера телефона в Telegram...", "warn");
+
+      try {
+        tg.requestContact((status) => {
+          if (status === true || status === "sent" || status === "allowed") {
+            setStatus("Запрос номера отправлен в Telegram. Если номер не подставился, введите вручную.", "ok");
+          } else {
+            setStatus("Не удалось автоматически получить номер. Введите телефон вручную.", "warn");
+          }
+        });
+      } catch (e) {
+        setStatus("Не удалось запросить контакт автоматически. Введите номер вручную.", "warn");
+      }
+    }
+
     if (tg) {
       tg.ready();
       tg.expand();
+
+      const user = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
+      if (user && user.phone_number) {
+        phoneInput.value = normalizePhone(user.phone_number);
+        setStatus("Телефон подставлен из Telegram.", "ok");
+      } else {
+        requestPhoneAuto();
+      }
+
+      tg.onEvent("contactRequested", function () {
+        const normalized = normalizePhone(phoneInput.value);
+        if (!normalized) {
+          setStatus("Контакт отправлен в бот. Если поле пустое, введите номер вручную и продолжите.", "warn");
+        }
+      });
+    } else {
+      setStatus("Это веб-режим. Для автозапроса номера откройте mini app из Telegram-бота.", "warn");
     }
 
-    const payBtn = document.getElementById("payBtn");
-    payBtn.href = TINKOFF_PAYMENT_URL;
+    requestPhoneBtn.addEventListener("click", requestPhoneAuto);
 
-    payBtn.addEventListener("click", () => {
-      if (tg) {
-        setTimeout(() => tg.close(), 450);
-      }
+    payLink.addEventListener("click", () => {
+      payClicked = true;
+      setStatus("После успешной оплаты вернитесь и нажмите «Я оплатил подписку».", "ok");
     });
 
-    document.querySelectorAll(".q button").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const q = btn.parentElement;
-        q.classList.toggle("open");
-      });
+    confirmPaidBtn.addEventListener("click", () => {
+      const phone = normalizePhone(phoneInput.value);
+      const botName = String(botNameInput.value || "").trim();
+
+      if (!phone) {
+        setStatus("Укажите телефон или разрешите Telegram передать контакт.", "err");
+        return;
+      }
+
+      if (!botName) {
+        setStatus("Укажите название вашего бота.", "err");
+        return;
+      }
+
+      if (!payClicked) {
+        setStatus("Сначала нажмите кнопку оплаты через Тинькофф.", "warn");
+      }
+
+      const payload = {
+        action: "subscription_paid",
+        phone,
+        botName,
+        paidAt: new Date().toISOString(),
+        source: "mini_app"
+      };
+
+      if (tg && typeof tg.sendData === "function") {
+        tg.sendData(JSON.stringify(payload));
+        setStatus("Данные отправлены администратору. Подписка будет продлена вручную.", "ok");
+      } else {
+        setStatus("Откройте mini app из Telegram-бота, чтобы отправить данные администратору.", "err");
+      }
     });
   </script>
 </body>

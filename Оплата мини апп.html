@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Оплата подписки</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-1: #060f26;
+      --bg-2: #0a1e46;
+      --bg-3: #134288;
+      --card: rgba(13, 24, 50, 0.76);
+      --line: rgba(166, 193, 246, 0.22);
+      --text: #f6f9ff;
+      --muted: #aabde2;
+      --accent: #61b2ff;
+      --accent-2: #77f1cf;
+      --shadow: 0 24px 70px rgba(2, 10, 24, 0.55);
+      --ok: #6df0c9;
+      --warn: #ffd27a;
+      --danger: #ff9b9b;
+      --radius-xl: 28px;
+      --radius-lg: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      padding: 16px 16px 102px;
+      font-family: "Manrope", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1300px 800px at -15% -20%, #2f60ff 0%, transparent 57%),
+        radial-gradient(850px 500px at 110% 120%, #17a8ff 0%, transparent 62%),
+        linear-gradient(150deg, var(--bg-1), var(--bg-2) 52%, var(--bg-3));
+      overflow-x: hidden;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 999px;
+      pointer-events: none;
+      filter: blur(60px);
+      opacity: .52;
+      z-index: 0;
+      animation: move 12s ease-in-out infinite;
+    }
+
+    .orb.one { width: 240px; height: 240px; top: -70px; right: -65px; background: #5bc0ff; }
+    .orb.two { width: 280px; height: 280px; bottom: -100px; left: -90px; background: #58fad6; animation-delay: -3s; }
+
+    @keyframes move {
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      50% { transform: translate3d(14px, -18px, 0); }
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(760px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--line);
+      background: linear-gradient(168deg, rgba(24, 40, 78, 0.88), var(--card));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      padding: 20px;
+      animation: show .45s ease both;
+    }
+
+    @keyframes show {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .head {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      border: 1px solid rgba(166, 193, 246, 0.28);
+      background: rgba(156, 187, 246, 0.14);
+      color: #cbddff;
+    }
+
+    .chip i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--ok);
+      box-shadow: 0 0 10px var(--ok);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-family: "Unbounded", sans-serif;
+      font-size: clamp(25px, 5.6vw, 40px);
+      line-height: 1.14;
+      letter-spacing: -0.02em;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .price {
+      margin-top: 14px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--line);
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: end;
+      background: linear-gradient(180deg, rgba(133, 181, 249, 0.14), rgba(120, 169, 246, 0.05));
+    }
+
+    .price small { display: block; color: #bdd2f6; font-size: 12px; margin-bottom: 4px; }
+    .amount { font-family: "Unbounded", sans-serif; font-size: clamp(30px, 8vw, 44px); line-height: 1; }
+    .price-note { max-width: 160px; font-size: 12px; color: #a0b7df; text-align: right; }
+
+    .block-title {
+      margin: 0 0 10px;
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #cadeff;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      font-size: 13px;
+      color: #c5d7ff;
+      font-weight: 700;
+    }
+
+    .input {
+      width: 100%;
+      border: 1px solid rgba(167, 193, 243, 0.28);
+      border-radius: 13px;
+      padding: 12px 13px;
+      font-size: 14px;
+      color: var(--text);
+      background: rgba(118, 157, 232, 0.09);
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .input:focus {
+      border-color: rgba(125, 179, 255, 0.72);
+      box-shadow: 0 0 0 3px rgba(99, 178, 255, 0.16);
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .btn,
+    .btn-soft {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 13px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .15s ease;
+    }
+
+    .btn:active,
+    .btn-soft:active { transform: translateY(1px); }
+
+    .btn {
+      color: #06284c;
+      background: linear-gradient(95deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 24px rgba(95, 179, 255, 0.35);
+    }
+
+    .btn-soft {
+      color: #cfe0ff;
+      border: 1px solid rgba(174, 198, 242, 0.3);
+      background: rgba(123, 167, 243, 0.12);
+    }
+
+    .status {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(173, 200, 247, 0.23);
+      background: rgba(123, 166, 236, 0.09);
+      font-size: 13px;
+      line-height: 1.4;
+      color: #c8dbff;
+    }
+
+    .status.ok { border-color: rgba(141, 231, 203, 0.35); color: #ceffe8; background: rgba(95, 193, 157, 0.13); }
+    .status.warn { border-color: rgba(255, 208, 123, 0.35); color: #ffe6b3; background: rgba(204, 155, 66, 0.14); }
+    .status.err { border-color: rgba(255, 151, 151, 0.35); color: #ffd1d1; background: rgba(184, 87, 87, 0.14); }
+
+    .hint {
+      margin-top: 8px;
+      color: #a3b8de;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .pay-sticky {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      background: linear-gradient(180deg, rgba(6, 15, 38, 0), rgba(6, 15, 38, 0.94));
+      backdrop-filter: blur(8px);
+    }
+
+    .pay-link {
+      width: min(760px, 100%);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border-radius: 14px;
+      padding: 14px 14px;
+      color: #08294d;
+      font-size: 16px;
+      font-weight: 800;
+      background: linear-gradient(95deg, var(--accent), var(--accent-2));
+      box-shadow: 0 13px 34px rgba(95, 180, 255, 0.4);
+    }
+
+    @media (max-width: 700px) {
+      body { padding: 12px 12px 102px; }
+      .card { padding: 16px; border-radius: 22px; }
+      .price { align-items: flex-start; flex-direction: column; }
+      .price-note { text-align: left; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb one" aria-hidden="true"></div>
+  <div class="orb two" aria-hidden="true"></div>
+
+  <main class="app">
+    <section class="card">
+      <div class="head">
+        <span class="chip"><i></i> Secure Payment</span>
+        <span class="chip">Подписка 30 дней</span>
+      </div>
+      <h1>Подписка на обслуживание</h1>
+      <p class="lead">Шаблонные боты, mini app каталоги и сопровождение. Оплата фиксированная, продление выполняется вручную администратором.</p>
+      <div class="price" aria-label="Сумма оплаты">
+        <div>
+          <small>К оплате</small>
+          <div class="amount">3 000 ₽</div>
+        </div>
+        <div class="price-note">После оплаты нажмите «Я оплатил подписку», чтобы отправить уведомление администратору.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="block-title">Идентификация плательщика</h2>
+
+      <div class="field">
+        <label for="phoneInput">Телефон</label>
+        <input id="phoneInput" class="input" type="tel" placeholder="+7XXXXXXXXXX" autocomplete="tel" />
+      </div>
+
+      <div class="row-actions">
+        <button id="requestPhoneBtn" class="btn-soft" type="button">Поделиться номером из Telegram</button>
+      </div>
+
+      <div class="field" style="margin-top: 12px;">
+        <label for="botNameInput">Название вашего бота</label>
+        <input id="botNameInput" class="input" type="text" placeholder="Например: @my_catalog_bot" maxlength="80" />
+      </div>
+
+      <div id="status" class="status warn">При входе mini app автоматически запрашивает номер телефона в Telegram.</div>
+      <p class="hint">Если Telegram не дал номер автоматически, введите его вручную. Без телефона и названия бота уведомление отправить нельзя.</p>
+
+      <div class="row-actions" style="margin-top: 12px;">
+        <button id="confirmPaidBtn" class="btn" type="button">Я оплатил подписку</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="pay-sticky">
+    <a id="payLink" class="pay-link" href="#" target="_blank" rel="noopener noreferrer">Оплатить через Тинькофф</a>
+  </div>
+
+  <script>
+    const TINKOFF_PAYMENT_URL = "https://www.tinkoff.ru/";
+
+    const phoneInput = document.getElementById("phoneInput");
+    const botNameInput = document.getElementById("botNameInput");
+    const requestPhoneBtn = document.getElementById("requestPhoneBtn");
+    const confirmPaidBtn = document.getElementById("confirmPaidBtn");
+    const statusEl = document.getElementById("status");
+    const payLink = document.getElementById("payLink");
+
+    payLink.href = TINKOFF_PAYMENT_URL;
+
+    let payClicked = false;
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+
+    function setStatus(text, tone) {
+      statusEl.textContent = text;
+      statusEl.className = `status ${tone || ""}`.trim();
+    }
+
+    function normalizePhone(raw) {
+      return String(raw || "").replace(/[^\d+]/g, "").trim();
+    }
+
+    function requestPhoneAuto() {
+      if (!tg || typeof tg.requestContact !== "function") {
+        setStatus("Автозапрос номера недоступен в этом окружении. Введите телефон вручную.", "warn");
+        return;
+      }
+
+      setStatus("Отправили запрос номера телефона в Telegram...", "warn");
+
+      try {
+        tg.requestContact((status) => {
+          if (status === true || status === "sent" || status === "allowed") {
+            setStatus("Запрос номера отправлен в Telegram. Если номер не подставился, введите вручную.", "ok");
+          } else {
+            setStatus("Не удалось автоматически получить номер. Введите телефон вручную.", "warn");
+          }
+        });
+      } catch (e) {
+        setStatus("Не удалось запросить контакт автоматически. Введите номер вручную.", "warn");
+      }
+    }
+
+    if (tg) {
+      tg.ready();
+      tg.expand();
+
+      const user = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
+      if (user && user.phone_number) {
+        phoneInput.value = normalizePhone(user.phone_number);
+        setStatus("Телефон подставлен из Telegram.", "ok");
+      } else {
+        requestPhoneAuto();
+      }
+
+      tg.onEvent("contactRequested", function () {
+        const normalized = normalizePhone(phoneInput.value);
+        if (!normalized) {
+          setStatus("Контакт отправлен в бот. Если поле пустое, введите номер вручную и продолжите.", "warn");
+        }
+      });
+    } else {
+      setStatus("Это веб-режим. Для автозапроса номера откройте mini app из Telegram-бота.", "warn");
+    }
+
+    requestPhoneBtn.addEventListener("click", requestPhoneAuto);
+
+    payLink.addEventListener("click", () => {
+      payClicked = true;
+      setStatus("После успешной оплаты вернитесь и нажмите «Я оплатил подписку».", "ok");
+    });
+
+    confirmPaidBtn.addEventListener("click", () => {
+      const phone = normalizePhone(phoneInput.value);
+      const botName = String(botNameInput.value || "").trim();
+
+      if (!phone) {
+        setStatus("Укажите телефон или разрешите Telegram передать контакт.", "err");
+        return;
+      }
+
+      if (!botName) {
+        setStatus("Укажите название вашего бота.", "err");
+        return;
+      }
+
+      if (!payClicked) {
+        setStatus("Сначала нажмите кнопку оплаты через Тинькофф.", "warn");
+      }
+
+      const payload = {
+        action: "subscription_paid",
+        phone,
+        botName,
+        paidAt: new Date().toISOString(),
+        source: "mini_app"
+      };
+
+      if (tg && typeof tg.sendData === "function") {
+        tg.sendData(JSON.stringify(payload));
+        setStatus("Данные отправлены администратору. Подписка будет продлена вручную.", "ok");
+      } else {
+        setStatus("Откройте mini app из Telegram-бота, чтобы отправить данные администратору.", "err");
+      }
+    });
+  </script>
+</body>
+</html>
