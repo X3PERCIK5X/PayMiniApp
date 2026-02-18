@@ -133,6 +133,7 @@
       background: linear-gradient(95deg, var(--accent), var(--accent-2));
       box-shadow: 0 10px 24px rgba(95, 179, 255, 0.35);
     }
+    .pay-action { margin-top: 18px; }
 
     .btn-soft {
       color: #cfe0ff;
@@ -182,7 +183,7 @@
         <input id="botLinkInput" class="input" type="url" placeholder="https://t.me/your_bot" maxlength="200" />
       </div>
 
-      <button id="payBtn" class="btn btn-primary" type="button">Оплатить через ЮKassa</button>
+      <button id="payBtn" class="btn btn-primary pay-action" type="button">Оплатить через ЮKassa</button>
       <div id="payStatus" class="status warn">После оплаты ЮKassa отправит автоподтверждение в группу: телефон, ссылка на бота и статус «Подписка оплачена».</div>
     </section>
   </main>
@@ -311,6 +312,19 @@
         setPayStatus("Ошибка соединения с платежным сервером.", "err");
       }
     });
+
+    function dismissKeyboardOnTap(event) {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (target.closest("input, textarea, select, [contenteditable='true']")) return;
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && typeof active.blur === "function") {
+        active.blur();
+      }
+    }
+
+    document.addEventListener("click", dismissKeyboardOnTap, { passive: true });
+    document.addEventListener("touchstart", dismissKeyboardOnTap, { passive: true });
   </script>
 </body>
 </html>

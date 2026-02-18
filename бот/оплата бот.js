@@ -15,6 +15,7 @@ const TelegramBot = require("node-telegram-bot-api");
 const BASE_DIR = __dirname;
 const ENV_PATH = path.join(BASE_DIR, "config.env");
 const CONTACTS_PATH = path.join(BASE_DIR, "contacts.json");
+const WELCOME_IMAGE_PATH = path.join(BASE_DIR, "welcome-card.png");
 
 function loadEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return;
@@ -74,18 +75,22 @@ const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
+  const welcomeText = "Подписка на обслуживание ботов и mini app каталогов.\nНажмите «Оплата», чтобы открыть mini app.";
+  const markup = {
+    inline_keyboard: [
+      [{ text: "Оплата", web_app: { url: WEBAPP_URL } }]
+    ]
+  };
 
-  await bot.sendMessage(
-    chatId,
-    "Нажмите «Оплата», поделитесь номером телефона и завершите оплату подписки.",
-    {
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "Оплата", web_app: { url: WEBAPP_URL } }]
-        ]
-      }
-    }
-  );
+  if (fs.existsSync(WELCOME_IMAGE_PATH)) {
+    await bot.sendPhoto(chatId, fs.createReadStream(WELCOME_IMAGE_PATH), {
+      caption: welcomeText,
+      reply_markup: markup
+    });
+    return;
+  }
+
+  await bot.sendMessage(chatId, welcomeText, { reply_markup: markup });
 });
 
 bot.on("message", async (msg) => {
@@ -99,11 +104,6 @@ bot.on("message", async (msg) => {
       updatedAt: new Date().toISOString()
     };
     writeContacts(contactsByUserId);
-
-    await bot.sendMessage(
-      msg.chat.id,
-      `Номер ${phone} получен. Теперь вернитесь в mini app и нажмите "Я оплатил подписку".`
-    );
     return;
   }
 
