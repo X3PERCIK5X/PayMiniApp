@@ -82,7 +82,7 @@ bot.onText(/\/start/, async (msg) => {
     {
       reply_markup: {
         inline_keyboard: [
-          [{ text: "Открыть мини-апп", web_app: { url: WEBAPP_URL } }]
+          [{ text: "Оплата", web_app: { url: WEBAPP_URL } }]
         ]
       }
     }
