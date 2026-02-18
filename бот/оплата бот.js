@@ -59,12 +59,12 @@ loadEnvFile(ENV_PATH);
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const WEBAPP_URL = process.env.WEBAPP_URL;
-const TINKOFF_PAYMENT_URL = process.env.TINKOFF_PAYMENT_URL;
+const PAYMENT_URL = process.env.YOOKASSA_PAYMENT_URL || process.env.TINKOFF_PAYMENT_URL;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
 
-if (!BOT_TOKEN || !WEBAPP_URL || !TINKOFF_PAYMENT_URL || !ADMIN_CHAT_ID) {
+if (!BOT_TOKEN || !WEBAPP_URL || !PAYMENT_URL || !ADMIN_CHAT_ID) {
   console.error(
-    "Не найдены BOT_TOKEN, WEBAPP_URL, TINKOFF_PAYMENT_URL или ADMIN_CHAT_ID. " +
+    "Не найдены BOT_TOKEN, WEBAPP_URL, YOOKASSA_PAYMENT_URL/TINKOFF_PAYMENT_URL или ADMIN_CHAT_ID. " +
       "Заполните config.env рядом с файлом оплата бот.js"
   );
   process.exit(1);
@@ -78,7 +78,7 @@ bot.onText(/\/start/, async (msg) => {
 
   await bot.sendMessage(
     chatId,
-    "Откройте мини-апп, укажите название вашего бота и подтвердите оплату подписки.",
+    "Нажмите «Оплата», поделитесь номером телефона и завершите оплату подписки.",
     {
       reply_markup: {
         inline_keyboard: [
@@ -120,13 +120,14 @@ bot.on("message", async (msg) => {
 
   if (payload.action !== "subscription_paid") return;
 
-  const botName = sanitizeText(payload.botName);
+  const botLink = sanitizeText(payload.botLink);
+  const paymentStatus = sanitizeText(payload.status) || "Подписка оплачена";
   const manualPhone = sanitizeText(payload.phone);
   const savedPhone = sanitizeText((contactsByUserId[String(from.id)] || {}).phone);
   const phone = manualPhone || savedPhone || "не указан";
 
-  if (!botName) {
-    await bot.sendMessage(msg.chat.id, "Укажите название бота перед отправкой оплаты.");
+  if (!botLink) {
+    await bot.sendMessage(msg.chat.id, "Укажите ссылку на бота перед отправкой оплаты.");
     return;
   }
 
@@ -134,10 +135,11 @@ bot.on("message", async (msg) => {
   const userLabel = formatUserLabel(from);
 
   const adminText = [
-    "Новая заявка на продление подписки:",
+    "Новая заявка на подписку:",
     `Пользователь: ${userLabel}`,
     `Телефон: ${phone}`,
-    `Бот клиента: ${botName}`,
+    `Ссылка на бота: ${botLink}`,
+    `Статус: ${paymentStatus}`,
     `Время отметки об оплате: ${paidAt}`,
     `Источник: Mini App`
   ].join("\n");
