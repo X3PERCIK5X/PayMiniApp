@@ -77,7 +77,12 @@ bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
   const welcomeText = "Подписка на обслуживание ботов и mini app каталогов.\nНажмите «Оплата», чтобы открыть mini app.";
   const webAppUrl = `${WEBAPP_URL}${WEBAPP_URL.includes("?") ? "&" : "?"}ts=${Date.now()}`;
-  const markup = {
+  const inlineMarkup = {
+    inline_keyboard: [
+      [{ text: "Оплата", web_app: { url: webAppUrl } }]
+    ]
+  };
+  const keyboardMarkup = {
     keyboard: [
       [{ text: "Оплата", web_app: { url: webAppUrl } }]
     ],
@@ -89,12 +94,15 @@ bot.onText(/\/start/, async (msg) => {
   if (fs.existsSync(WELCOME_IMAGE_PATH)) {
     await bot.sendPhoto(chatId, fs.createReadStream(WELCOME_IMAGE_PATH), {
       caption: welcomeText,
-      reply_markup: markup
+      reply_markup: inlineMarkup
     });
-    return;
+  } else {
+    await bot.sendMessage(chatId, welcomeText, { reply_markup: inlineMarkup });
   }
 
-  await bot.sendMessage(chatId, welcomeText, { reply_markup: markup });
+  await bot.sendMessage(chatId, "Кнопка «Оплата» закреплена внизу чата.", {
+    reply_markup: keyboardMarkup
+  });
 });
 
 bot.on("message", async (msg) => {
