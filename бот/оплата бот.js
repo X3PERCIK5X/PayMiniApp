@@ -13,7 +13,9 @@ const path = require("path");
 const TelegramBot = require("node-telegram-bot-api");
 
 const BASE_DIR = __dirname;
-const ENV_PATH = path.join(BASE_DIR, "config.env");
+const LOCAL_ENV_PATH = path.join(BASE_DIR, "config.env");
+const REPO_SHARED_ENV_PATH = path.join(BASE_DIR, "..", "miniapp.config.env");
+const SERVER_SHARED_ENV_PATH = "/opt/payminiapp-miniapp/config.env";
 const CONTACTS_PATH = path.join(BASE_DIR, "contacts.json");
 const WELCOME_IMAGE_PATH = path.join(BASE_DIR, "welcome-card.png");
 
@@ -56,7 +58,14 @@ function formatUserLabel(user) {
   return `${fullName || "Пользователь"} (${username}, id: ${user.id})`;
 }
 
-loadEnvFile(ENV_PATH);
+[
+  process.env.SHARED_CONFIG_PATH,
+  REPO_SHARED_ENV_PATH,
+  SERVER_SHARED_ENV_PATH,
+  LOCAL_ENV_PATH
+].forEach((envPath) => {
+  if (envPath) loadEnvFile(envPath);
+});
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const WEBAPP_URL = process.env.WEBAPP_URL;
@@ -65,7 +74,7 @@ const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
 if (!BOT_TOKEN || !WEBAPP_URL || !ADMIN_CHAT_ID) {
   console.error(
     "Не найдены BOT_TOKEN, WEBAPP_URL или ADMIN_CHAT_ID. " +
-      "Заполните config.env рядом с файлом оплата бот.js"
+      "Заполните общий config.env в папке mini app или локальный config.env рядом с ботом."
   );
   process.exit(1);
 }

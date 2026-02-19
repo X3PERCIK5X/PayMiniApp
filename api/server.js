@@ -4,7 +4,9 @@ const crypto = require("crypto");
 const express = require("express");
 
 const BASE_DIR = __dirname;
-const ENV_PATH = path.join(BASE_DIR, "config.env");
+const LOCAL_ENV_PATH = path.join(BASE_DIR, "config.env");
+const REPO_SHARED_ENV_PATH = path.join(BASE_DIR, "..", "miniapp.config.env");
+const SERVER_SHARED_ENV_PATH = "/opt/payminiapp-miniapp/config.env";
 const CONTACTS_DEFAULT = "/opt/payminiapp-bot/contacts.json";
 const PROCESSED_DEFAULT = path.join(BASE_DIR, "processed-payments.json");
 const PAYMENTS_LOG_DEFAULT = path.join(BASE_DIR, "payments-log.json");
@@ -40,7 +42,14 @@ function sanitize(value) {
   return String(value || "").replace(/[<>]/g, "").trim();
 }
 
-loadEnvFile(ENV_PATH);
+[
+  process.env.SHARED_CONFIG_PATH,
+  REPO_SHARED_ENV_PATH,
+  SERVER_SHARED_ENV_PATH,
+  LOCAL_ENV_PATH
+].forEach((envPath) => {
+  if (envPath) loadEnvFile(envPath);
+});
 
 const PORT = Number(process.env.PORT || 8090);
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "https://x3percik5x.github.io";
