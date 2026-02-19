@@ -86,6 +86,10 @@ bot.onText(/\/start/, async (msg) => {
   try {
     const chatId = msg.chat.id;
     const welcomeText = "Подписка на обслуживание ботов и mini app каталогов.\nНажмите «Оплата», чтобы открыть mini app.";
+    if (msg.chat.type !== "private") {
+      await bot.sendMessage(chatId, "Команда доступна в личном чате с ботом. Для ID чата используйте /chatid здесь.");
+      return;
+    }
     const webAppUrl = `${WEBAPP_URL}${WEBAPP_URL.includes("?") ? "&" : "?"}ts=${Date.now()}`;
     const inlineMarkup = {
       inline_keyboard: [
@@ -104,6 +108,23 @@ bot.onText(/\/start/, async (msg) => {
   } catch (err) {
     console.error("Start handler error:", err.message);
   }
+});
+
+bot.onText(/\/chatid/, async (msg) => {
+  const chat = msg.chat || {};
+  const from = msg.from || {};
+  const text = [
+    "ID чата:",
+    `chat_id: ${chat.id}`,
+    `тип: ${chat.type || "unknown"}`,
+    `твой user_id: ${from.id || "unknown"}`
+  ].join("\n");
+  await bot.sendMessage(chat.id, text);
+});
+
+bot.onText(/\/myid/, async (msg) => {
+  const from = msg.from || {};
+  await bot.sendMessage(msg.chat.id, `Твой user_id: ${from.id || "unknown"}`);
 });
 
 bot.on("message", async (msg) => {
