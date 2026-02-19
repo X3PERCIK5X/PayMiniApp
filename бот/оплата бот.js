@@ -74,33 +74,38 @@ const contactsByUserId = readContacts();
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 
 bot.onText(/\/start/, async (msg) => {
-  const chatId = msg.chat.id;
-  const welcomeText = "Подписка на обслуживание ботов и mini app каталогов.\nНажмите «Оплата», чтобы открыть mini app.";
-  const webAppUrl = `${WEBAPP_URL}${WEBAPP_URL.includes("?") ? "&" : "?"}ts=${Date.now()}`;
-  const inlineMarkup = {
-    inline_keyboard: [
-      [{ text: "Оплата", web_app: { url: webAppUrl } }]
-    ]
-  };
-  const keyboardMarkup = {
-    keyboard: [
-      [{ text: "Оплата", web_app: { url: webAppUrl } }]
-    ],
-    resize_keyboard: true,
-    one_time_keyboard: false,
-    is_persistent: true
-  };
+  try {
+    const chatId = msg.chat.id;
+    const welcomeText = "Подписка на обслуживание ботов и mini app каталогов.\nНажмите «Оплата», чтобы открыть mini app.";
+    const webAppUrl = `${WEBAPP_URL}${WEBAPP_URL.includes("?") ? "&" : "?"}ts=${Date.now()}`;
+    const inlineMarkup = {
+      inline_keyboard: [
+        [{ text: "Оплата", web_app: { url: webAppUrl } }]
+      ]
+    };
+    const keyboardMarkup = {
+      keyboard: [
+        [{ text: "Оплата", web_app: { url: webAppUrl } }]
+      ],
+      resize_keyboard: true,
+      one_time_keyboard: false,
+      is_persistent: true
+    };
 
-  if (fs.existsSync(WELCOME_IMAGE_PATH)) {
-    await bot.sendPhoto(chatId, fs.createReadStream(WELCOME_IMAGE_PATH), {
-      caption: welcomeText,
-      reply_markup: inlineMarkup
-    });
-  } else {
-    await bot.sendMessage(chatId, welcomeText, { reply_markup: inlineMarkup });
+    if (fs.existsSync(WELCOME_IMAGE_PATH)) {
+      await bot.sendPhoto(chatId, fs.createReadStream(WELCOME_IMAGE_PATH), {
+        caption: welcomeText,
+        reply_markup: inlineMarkup
+      });
+    } else {
+      await bot.sendMessage(chatId, welcomeText, { reply_markup: inlineMarkup });
+    }
+
+    const keyboardMsg = await bot.sendMessage(chatId, ".", { reply_markup: keyboardMarkup });
+    await bot.deleteMessage(chatId, String(keyboardMsg.message_id)).catch(() => {});
+  } catch (err) {
+    console.error("Start handler error:", err.message);
   }
-
-  await bot.sendMessage(chatId, " ", { reply_markup: keyboardMarkup });
 });
 
 bot.on("message", async (msg) => {
