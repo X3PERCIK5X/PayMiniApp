@@ -41,6 +41,7 @@
       flex-direction: column;
       justify-content: center;
       gap: 14px;
+      position: relative;
     }
 
     .hidden { display: none; }
@@ -89,29 +90,23 @@
       letter-spacing: -0.02em;
     }
 
-    .panel-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
+    .panel-top { display: block; }
     .title-wrap { flex: 1; }
 
-    .icon-btn {
-      width: 44px;
-      height: 44px;
-      border: 1px solid rgba(167, 193, 243, 0.32);
+    .history-top-btn {
+      position: absolute;
+      top: max(20px, env(safe-area-inset-top));
+      right: 16px;
+      border: 1px solid rgba(167, 193, 243, 0.35);
       border-radius: 12px;
-      background: rgba(118, 157, 232, 0.12);
+      background: rgba(118, 157, 232, 0.14);
       color: #d8e5ff;
-      font-size: 22px;
-      line-height: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 10px 14px;
       cursor: pointer;
-      flex: 0 0 auto;
+      z-index: 5;
+      backdrop-filter: blur(6px);
     }
 
     .lead {
@@ -289,13 +284,13 @@
   </section>
 
   <section id="paymentScreen" class="screen hidden">
+    <button id="historyBtn" class="history-top-btn" type="button">История оплат</button>
     <div class="panel">
       <span class="chip"><i></i> Оплата</span>
       <div class="panel-top">
         <div class="title-wrap">
           <h1>Подписка на обслуживание</h1>
         </div>
-        <button id="historyBtn" class="icon-btn" type="button" aria-label="История оплат" title="История оплат">🕘</button>
       </div>
 
       <div class="price">
