@@ -83,14 +83,6 @@ bot.onText(/\/start/, async (msg) => {
         [{ text: "Оплата", web_app: { url: webAppUrl } }]
       ]
     };
-    const keyboardMarkup = {
-      keyboard: [
-        [{ text: "Оплата", web_app: { url: webAppUrl } }]
-      ],
-      resize_keyboard: true,
-      one_time_keyboard: false,
-      is_persistent: true
-    };
 
     if (fs.existsSync(WELCOME_IMAGE_PATH)) {
       await bot.sendPhoto(chatId, fs.createReadStream(WELCOME_IMAGE_PATH), {
@@ -100,9 +92,6 @@ bot.onText(/\/start/, async (msg) => {
     } else {
       await bot.sendMessage(chatId, welcomeText, { reply_markup: inlineMarkup });
     }
-
-    const keyboardMsg = await bot.sendMessage(chatId, ".", { reply_markup: keyboardMarkup });
-    await bot.deleteMessage(chatId, String(keyboardMsg.message_id)).catch(() => {});
   } catch (err) {
     console.error("Start handler error:", err.message);
   }
