@@ -207,6 +207,10 @@
       display: none;
     }
 
+    .history-modal[hidden] {
+      display: none !important;
+    }
+
     .history-card {
       width: min(650px, 100%);
       max-height: calc(100dvh - 30px);
@@ -308,7 +312,7 @@
     </div>
   </section>
 
-  <section id="historyModal" class="history-modal hidden">
+  <section id="historyModal" class="history-modal hidden" hidden>
     <div class="history-card">
       <div class="history-head">
         <h2 class="history-title">История оплат</h2>
@@ -374,6 +378,7 @@
       }
 
       historyContent.innerHTML = '<div class="history-empty">Загрузка...</div>';
+      historyModal.hidden = false;
       historyModal.classList.remove("hidden");
 
       try {
@@ -417,6 +422,7 @@
 
     function closeHistory() {
       historyModal.classList.add("hidden");
+      historyModal.hidden = true;
     }
 
     function requestContact() {
@@ -497,6 +503,7 @@
     }
 
     initTelegramContext(20);
+    closeHistory();
     requestPhoneBtn.addEventListener("click", requestContact);
     historyBtn.addEventListener("click", openHistory);
     closeHistoryBtn.addEventListener("click", closeHistory);
